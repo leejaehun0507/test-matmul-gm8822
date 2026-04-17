@@ -1,0 +1,41 @@
+name: Autograding
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log Level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout autograder repository
+        uses: actions/checkout@v4
+        with:
+          repository: CAS1102-2026/autograder
+          token: ${{ secrets.AUTOGRADER_TOKEN }}
+          path: autograder
+
+      - name: Checkout student repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: autograder/student
+
+      - name: Run grading script
+        run: |
+          cd autograder
+          ./grader/run_tests.sh matmul
